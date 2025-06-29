@@ -4,31 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Whispers on an Autumn Street</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/addons/p5.sound.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        #sketch-holder { transition: opacity 0.5s ease; }
+        #sketch-holder { transition: opacity 0.5s ease; width: 100%; max-width: 800px; margin: 0 auto; }
         .fade-out { opacity: 0; }
         .fade-in { opacity: 1; }
         #pdf-link { display: none; margin-top: 10px; text-align: center; }
         #share-button { transition: background-color 0.2s; }
+        #start-button { display: none; }
+        .buttons { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+        @media (max-width: 640px) {
+            .buttons { flex-direction: column; align-items: center; }
+            .buttons button, .buttons span { width: 100%; max-width: 300px; text-align: center; }
+        }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
     <div class="w-full max-w-4xl">
-        <div id="sketch-holder" class="w-full h-[600px] fade-in"></div>
+        <div id="sketch-holder" class="fade-in"></div>
         <div id="pdf-link" class="text-blue-600 hover:underline"></div>
-        <div class="text-center mt-4 space-x-4">
-            <button id="prev-button" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600">Previous</button>
-            <span id="scene-counter" class="text-lg font-semibold"></span>
-            <button id="next-button" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Next</button>
-            <button id="share-button" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Share</button>
+        <div class="buttons mt-4">
+            <button id="start-button" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Start Story</button>
+            <button id="prev-button" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 hidden">Previous</button>
+            <span id="scene-counter" class="text-lg font-semibold hidden"></span>
+            <button id="next-button" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 hidden">Next</button>
+            <button id="share-button" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 hidden">Share</button>
         </div>
     </div>
 
     <script>
         let scenes = [
+            {
+                image: "images/start.jpg",
+                dialogues: [
+                    { speaker: "", text: "Welcome to Whispers on an Autumn Street\nA story of connection and discovery\nClick 'Start Story' to begin" }
+                ],
+                isStartPage: true
+            },
             {
                 image: "images/scene1.jpg",
                 dialogues: [
@@ -105,9 +120,9 @@
         let sound; // Dialogue audio
         let backgroundMusic; // Background song
         let images = [];
+        let audioContextStarted = false;
 
         function preload() {
-            // Load images and dialogue audio
             for (let i = 0; i < scenes.length; i++) {
                 images[i] = loadImage(scenes[i].image, () => {}, (err) => {
                     console.error(`Failed to load image: ${scenes[i].image}`, err);
@@ -120,7 +135,6 @@
                     }
                 }
             }
-            // Load background music
             backgroundMusic = loadSound('audio/background_music.mp3', () => {}, (err) => {
                 console.error('Failed to load background music:', err);
             });
@@ -128,26 +142,46 @@
 
         function setup() {
             try {
-                let canvas = createCanvas(800, 600);
+                let canvasWidth = min(windowWidth, 800);
+                let canvasHeight = canvasWidth * 0.75; // Maintain 4:3 aspect ratio
+                let canvas = createCanvas(canvasWidth, canvasHeight);
                 canvas.parent('sketch-holder');
-                textAlign(LEFT);
+                textAlign(CENTER);
                 textSize(16);
                 updateSceneCounter();
-                // Start background music
-                if (backgroundMusic) {
-                    backgroundMusic.setVolume(0.2); // Low volume to prioritize dialogues
-                    backgroundMusic.loop(); // Loop continuously
-                }
                 displayScene();
             } catch (e) {
                 console.error("Setup failed:", e);
                 document.getElementById('sketch-holder').innerHTML = "<p>Error loading storybook. Please ensure all assets are available and refresh.</p>";
             }
 
+            // Start button for start page
+            let startButton = document.getElementById('start-button');
+            startButton.addEventListener('click', () => {
+                // Resume audio context on user interaction
+                if (!audioContextStarted && getAudioContext().state === 'suspended') {
+                    getAudioContext().resume().then(() => {
+                        audioContextStarted = true;
+                        if (backgroundMusic && !backgroundMusic.isPlaying()) {
+                            backgroundMusic.setVolume(0.1); // Lowered volume
+                            backgroundMusic.loop();
+                        }
+                    });
+                }
+                currentScene = 1; // Move to Scene 1
+                updateSceneCounter();
+                displayScene();
+                startButton.classList.add('hidden');
+                document.getElementById('prev-button').classList.remove('hidden');
+                document.getElementById('next-button').classList.remove('hidden');
+                document.getElementById('share-button').classList.remove('hidden');
+                document.getElementById('scene-counter').classList.remove('hidden');
+            });
+
             // Share button functionality
             document.getElementById('share-button').addEventListener('click', () => {
                 const shareData = {
-                    title: 'A Conversation on a City Street',
+                    title: 'Whispers on an Autumn Street',
                     text: 'Explore a digital storybook about archetypes and human connection.',
                     url: 'https://ratwalster.github.io/ArchetypeEncounter/'
                 };
@@ -167,12 +201,17 @@
         }
 
         function updateSceneCounter() {
-            document.getElementById('scene-counter').textContent = `Scene ${currentScene + 1} of ${scenes.length}`;
+            let sceneCounter = document.getElementById('scene-counter');
+            if (currentScene === 0) {
+                sceneCounter.textContent = '';
+            } else {
+                sceneCounter.textContent = `Scene ${currentScene} of ${scenes.length - 1}`;
+            }
         }
 
         function playNextDialogue() {
             let scene = scenes[currentScene];
-            if (currentDialogue < scene.dialogues.length && scene.dialogues[currentDialogue].sound) {
+            if (!scene.isStartPage && currentDialogue < scene.dialogues.length && scene.dialogues[currentDialogue].sound) {
                 if (sound && sound.isPlaying()) {
                     sound.stop();
                 }
@@ -180,7 +219,7 @@
                 sound.onended(() => {
                     currentDialogue++;
                     if (currentDialogue < scene.dialogues.length && scene.dialogues[currentDialogue].sound) {
-                        setTimeout(playNextDialogue, 500); // 0.5s delay between audios
+                        setTimeout(playNextDialogue, 500); // 0.5s delay
                     }
                 });
                 sound.play();
@@ -190,8 +229,10 @@
         function displayScene() {
             let sketchHolder = document.getElementById('sketch-holder');
             let pdfLink = document.getElementById('pdf-link');
+            let startButton = document.getElementById('start-button');
             let scene = scenes[currentScene];
-            currentDialogue = 0; // Reset dialogue index
+            currentDialogue = 0;
+
             sketchHolder.classList.remove('fade-in');
             sketchHolder.classList.add('fade-out');
             setTimeout(() => {
@@ -199,22 +240,23 @@
                 if (images[currentScene]) {
                     image(images[currentScene], 0, 0, width, height);
                 } else {
-                    background(255); // Fallback if image fails
+                    background(255);
                 }
-                
-                // Draw speech bubbles at the bottom
-                let yOffset = 400; // Bottom of 600px canvas
+
+                // Draw speech bubbles
+                let yOffset = height - 100 * scene.dialogues.length; // Bottom, adjust for number of dialogues
                 for (let i = 0; i < scene.dialogues.length; i++) {
                     let dialogue = scene.dialogues[i];
-                    fill(255, 255, 255, 150); // Transparent for image visibility
-                    stroke(200, 200, 200); // Soft gray stroke
+                    fill(255, 255, 255, 150);
+                    stroke(200, 200, 200);
                     strokeWeight(2);
-                    rect(50, yOffset, 700, 80, 15); // Rounded corners
+                    rect(20, yOffset, width - 40, 90, 15); // Wider, taller bubbles
                     fill(0);
                     noStroke();
-                    textSize(14);
+                    textSize(13);
                     textWrap(WORD);
-                    text(dialogue.text, 60, yOffset + 20, 680);
+                    textAlign(LEFT);
+                    text(dialogue.text, 30, yOffset + 20, width - 60);
                     yOffset += 100;
                 }
                 sketchHolder.classList.remove('fade-out');
@@ -227,10 +269,26 @@
                 } else {
                     pdfLink.style.display = 'none';
                 }
-            }, 500);
 
-            // Start playing dialogues
-            playNextDialogue();
+                // Show/hide start button
+                if (scene.isStartPage) {
+                    startButton.classList.remove('hidden');
+                    document.getElementById('prev-button').classList.add('hidden');
+                    document.getElementById('next-button').classList.add('hidden');
+                    document.getElementById('share-button').classList.add('hidden');
+                    document.getElementById('scene-counter').classList.add('hidden');
+                } else {
+                    startButton.classList.add('hidden');
+                    document.getElementById('prev-button').classList.remove('hidden');
+                    document.getElementById('next-button').classList.remove('hidden');
+                    document.getElementById('share-button').classList.remove('hidden');
+                    document.getElementById('scene-counter').classList.remove('hidden');
+                    // Start dialogues after audio context is resumed
+                    if (audioContextStarted) {
+                        playNextDialogue();
+                    }
+                }
+            }, 500);
         }
 
         function nextScene() {
@@ -239,7 +297,7 @@
             }
             currentScene++;
             if (currentScene >= scenes.length) {
-                currentScene = 0; // Loop back to start
+                currentScene = 1; // Loop to Scene 1, skip start page
             }
             updateSceneCounter();
             displayScene();
@@ -250,14 +308,14 @@
                 sound.stop();
             }
             currentScene--;
-            if (currentScene < 0) {
-                currentScene = scenes.length - 1; // Loop to end
+            if (currentScene <= 0) {
+                currentScene = scenes.length - 1; // Loop to last scene
             }
             updateSceneCounter();
             displayScene();
         }
 
-        // Stop music when leaving page
+        // Stop audio when leaving page
         window.addEventListener('unload', () => {
             if (backgroundMusic && backgroundMusic.isPlaying()) {
                 backgroundMusic.stop();
