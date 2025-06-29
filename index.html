@@ -120,6 +120,7 @@
         let backgroundMusic; // Background song
         let images = [];
         let audioContextStarted = false;
+        let isPlayingDialogue = false;
 
         function preload() {
             for (let i = 0; i < scenes.length; i++) {
@@ -163,12 +164,34 @@
                         if (backgroundMusic && !backgroundMusic.isPlaying()) {
                             backgroundMusic.setVolume(0.1);
                             backgroundMusic.loop();
+                            console.log('Background music started');
                         }
                     });
                 }
                 currentScene = 1;
                 updateSceneCounter();
                 displayScene();
+            });
+
+            // Share button functionality
+            document.getElementById('share-button').addEventListener('click', () => {
+                const shareData = {
+                    title: 'Whispers on an Autumn Street',
+                    text: 'Explore a digital storybook about archetypes and human connection.',
+                    url: 'https://ratwalster.github.io/ArchetypeEncounter/'
+                };
+                if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                    navigator.share(shareData).catch(err => {
+                        console.error('Share failed:', err);
+                    });
+                } else {
+                    navigator.clipboard.writeText(shareData.url).then(() => {
+                        alert('Link copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Clipboard copy failed:', err);
+                        alert('Failed to copy link. Please copy manually: ' + shareData.url);
+                    });
+                }
             });
         }
 
@@ -184,18 +207,33 @@
 
         function playNextDialogue() {
             let scene = scenes[currentScene];
-            if (!scene.isStartPage && currentDialogue < scene.dialogues.length && scene.dialogues[currentDialogue].sound) {
+            if (!scene.isStartPage && currentDialogue < scene.dialogues.length && scene.dialogues[currentDialogue].sound && !isPlayingDialogue) {
+                isPlayingDialogue = true;
                 if (sound && sound.isPlaying()) {
                     sound.stop();
+                    console.log('Stopped previous audio');
                 }
                 sound = scene.dialogues[currentDialogue].sound;
-                sound.onended(() => {
+                console.log(`Playing dialogue ${currentDialogue + 1} of scene ${currentScene}: ${scene.dialogues[currentDialogue].audio}`);
+                sound.play().then(() => {
+                    sound.onended(() => {
+                        console.log(`Finished dialogue ${currentDialogue + 1} of scene ${currentScene}`);
+                        currentDialogue++;
+                        isPlayingDialogue = false;
+                        if (currentDialogue < scene.dialogues.length && scene.dialogues[currentDialogue].sound) {
+                            setTimeout(playNextDialogue, 500);
+                        }
+                    });
+                }).catch(err => {
+                    console.error(`Failed to play audio: ${scene.dialogues[currentDialogue].audio}`, err);
+                    isPlayingDialogue = false;
                     currentDialogue++;
                     if (currentDialogue < scene.dialogues.length && scene.dialogues[currentDialogue].sound) {
                         setTimeout(playNextDialogue, 500);
                     }
                 });
-                sound.play();
+            } else {
+                isPlayingDialogue = false;
             }
         }
 
@@ -208,6 +246,12 @@
             let shareButton = document.getElementById('share-button');
             let scene = scenes[currentScene];
             currentDialogue = 0;
+            isPlayingDialogue = false;
+
+            if (sound && sound.isPlaying()) {
+                sound.stop();
+                console.log('Stopped audio during scene change');
+            }
 
             sketchHolder.classList.remove('fade-in');
             sketchHolder.classList.add('fade-out');
@@ -257,16 +301,13 @@
                         pdfLink.style.display = 'none';
                     }
                     if (audioContextStarted) {
-                        playNextDialogue();
+                        setTimeout(playNextDialogue, 100); // Slight delay for audio context
                     }
                 }
             }, 500);
         }
 
         function nextScene() {
-            if (sound && sound.isPlaying()) {
-                sound.stop();
-            }
             currentScene++;
             if (currentScene >= scenes.length) {
                 currentScene = 1; // Loop to Scene 1
@@ -276,9 +317,6 @@
         }
 
         function prevScene() {
-            if (sound && sound.isPlaying()) {
-                sound.stop();
-            }
             currentScene--;
             if (currentScene <= 0) {
                 currentScene = scenes.length - 1; // Loop to last scene
@@ -286,27 +324,6 @@
             updateSceneCounter();
             displayScene();
         }
-
-        // Share button functionality
-        document.getElementById('share-button').addEventListener('click', () => {
-            const shareData = {
-                title: 'Whispers on an Autumn Street',
-                text: 'Explore a digital storybook about archetypes and human connection.',
-                url: 'https://ratwalster.github.io/ArchetypeEncounter/'
-            };
-            if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-                navigator.share(shareData).catch(err => {
-                    console.error('Share failed:', err);
-                });
-            } else {
-                navigator.clipboard.writeText(shareData.url).then(() => {
-                    alert('Link copied to clipboard!');
-                }).catch(err => {
-                    console.error('Clipboard copy failed:', err);
-                    alert('Failed to copy link. Please copy manually: ' + shareData.url);
-                });
-            }
-        });
 
         // Stop audio when leaving page
         window.addEventListener('unload', () => {
