@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -101,10 +102,12 @@
 
         let currentScene = 0;
         let currentDialogue = 0;
-        let sound;
+        let sound; // Dialogue audio
+        let backgroundMusic; // Background song
         let images = [];
 
         function preload() {
+            // Load images and dialogue audio
             for (let i = 0; i < scenes.length; i++) {
                 images[i] = loadImage(scenes[i].image, () => {}, (err) => {
                     console.error(`Failed to load image: ${scenes[i].image}`, err);
@@ -117,6 +120,10 @@
                     }
                 }
             }
+            // Load background music
+            backgroundMusic = loadSound('audio/background_music.mp3', () => {}, (err) => {
+                console.error('Failed to load background music:', err);
+            });
         }
 
         function setup() {
@@ -126,6 +133,11 @@
                 textAlign(LEFT);
                 textSize(16);
                 updateSceneCounter();
+                // Start background music
+                if (backgroundMusic) {
+                    backgroundMusic.setVolume(0.2); // Low volume to prioritize dialogues
+                    backgroundMusic.loop(); // Loop continuously
+                }
                 displayScene();
             } catch (e) {
                 console.error("Setup failed:", e);
@@ -144,7 +156,6 @@
                         console.error('Share failed:', err);
                     });
                 } else {
-                    // Fallback: Copy URL to clipboard
                     navigator.clipboard.writeText(shareData.url).then(() => {
                         alert('Link copied to clipboard!');
                     }).catch(err => {
@@ -192,7 +203,7 @@
                 }
                 
                 // Draw speech bubbles at the bottom
-                let yOffset = 400; // Start at bottom (600px canvas height - 2 bubbles)
+                let yOffset = 400; // Bottom of 600px canvas
                 for (let i = 0; i < scene.dialogues.length; i++) {
                     let dialogue = scene.dialogues[i];
                     fill(255, 255, 255, 150); // Transparent for image visibility
@@ -245,6 +256,16 @@
             updateSceneCounter();
             displayScene();
         }
+
+        // Stop music when leaving page
+        window.addEventListener('unload', () => {
+            if (backgroundMusic && backgroundMusic.isPlaying()) {
+                backgroundMusic.stop();
+            }
+            if (sound && sound.isPlaying()) {
+                sound.stop();
+            }
+        });
 
         document.getElementById('next-button').addEventListener('click', nextScene);
         document.getElementById('prev-button').addEventListener('click', prevScene);
