@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Conversation on a City Street</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/addons/p5.sound.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #sketch-holder { transition: opacity 0.5s ease; }
+        .fade-out { opacity: 0; }
+        .fade-in { opacity: 1; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-4xl">
+        <div id="sketch-holder" class="w-full h-[600px] fade-in"></div>
+        <div class="text-center mt-4 space-x-4">
+            <button id="prev-button" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600">Previous</button>
+            <span id="scene-counter" class="text-lg font-semibold"></span>
+            <button id="next-button" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Next</button>
+        </div>
+    </div>
+
+    <script>
+        let scenes = [
+            {
+                image: "images/scene1.jpg",
+                dialogues: [
+                    { speaker: "Sam", text: "Hey, you look deep in thought there. How are you doing?", audio: "audio/scene1_sam.mp3" }
+                ]
+            },
+            {
+                image: "images/scene2.jpg",
+                dialogues: [
+                    { speaker: "Lila", text: "Honestly, I'm kind of reeling. I just read something pretty amazing about how archetypes can shape—and sometimes limit—how we connect with others. I'm trying to process what it could mean.", audio: "audio/scene2_lila.mp3" },
+                    { speaker: "", text: "Note: Lila is reading about archetypal theory, which explores how archetypes (like 'the hero' or 'the caregiver') can simplify human experience but may become barriers to authentic connection. Want to learn more? Download the theory [here](theory.pdf).", audio: null }
+                ]
+            },
+            {
+                image: "images/scene3.jpg",
+                dialogues: [
+                    { speaker: "Sam", text: "That sounds heavy. Archetypes, like the hero or the wise old sage kind of thing?", audio: "audio/scene3_sam.mp3" },
+                    { speaker: "Lila", text: "Yeah, exactly. Like, the writer, the rebel, the caregiver—those kinds of roles...", audio: "audio/scene3_lila.mp3" }
+                ]
+            },
+            {
+                image: "images/scene4.jpg",
+                dialogues: [
+                    { speaker: "Sam", text: "I'm a graphic designer, and sometimes I catch myself playing 'The Creative One' at work, you know?...", audio: "audio/scene4_sam.mp3" },
+                    { speaker: "Lila", text: "That's exactly what they're talking about!... I'm Lila, by the way.", audio: "audio/scene4_lila.mp3" }
+                ]
+            },
+            {
+                image: "images/scene5.jpg",
+                dialogues: [
+                    { speaker: "Sam", text: "No, don't apologize—that's cool. I'm Sam. So, what's the big idea in this thing you read?", audio: "audio/scene5_sam.mp3" },
+                    { speaker: "Lila", text: "Okay, so they talk about how we put people in boxes...", audio: "audio/scene5_lila.mp3" }
+                ]
+            },
+            {
+                image: "images/scene6.jpg",
+                dialogues: [
+                    { speaker: "Sam", text: "I've got a coworker who's always got an opinion, and I just write her off as 'The Bossy One'...", audio: "audio/scene6_sam.mp3" },
+                    { speaker: "Lila", text: "Right? And it goes both ways. Like, I'm a teacher, and I catch myself playing 'The Patient Mentor'...", audio: "audio/scene6_lila.mp3" }
+                ]
+            },
+            {
+                image: "images/scene7.jpg",
+                dialogues: [
+                    { speaker: "Sam", text: "Yeah, terrifying's the word. I mean, I'm sitting here thinking, 'Don't be The Awkward Guy'...", audio: "audio/scene7_sam.mp3" },
+                    { speaker: "Lila", text: "That's so real. They said in the piece—Marlon Brando, of all people—he was like...", audio: "audio/scene7_lila.mp3" }
+                ]
+            },
+            {
+                image: "images/scene8.jpg",
+                dialogues: [
+                    { speaker: "Sam", text: "What if I just said, 'Hey, I'm kind of lonely sometimes?'...", audio: "audio/scene8_sam.mp3" },
+                    { speaker: "Lila", text: "I'm glad you did. That's not 'The Funny Guy.' That's Sam...", audio: "audio/scene8_lila.mp3" }
+                ]
+            },
+            {
+                image: "images/scene9.jpg",
+                dialogues: [
+                    { speaker: "Lila", text: "They said you've got to hold those archetypes lightly...", audio: "audio/scene9_lila.mp3" },
+                    { speaker: "Sam", text: "A river, huh? That's kind of freeing...", audio: "audio/scene9_sam.mp3" }
+                ]
+            },
+            {
+                image: "images/scene10.jpg",
+                dialogues: [
+                    { speaker: "Sam", text: "Hey, um... would you maybe want to keep talking about this stuff?...", audio: "audio/scene10_sam.mp3" },
+                    { speaker: "Lila", text: "I'd like that. Let's do it. No masks, no roles, just two people...", audio: "audio/scene10_lila.mp3" }
+                ]
+            }
+        ];
+
+        let currentScene = 0;
+        let currentDialogue = 0;
+        let sound;
+        let images = [];
+
+        function preload() {
+            for (let i = 0; i < scenes.length; i++) {
+                images[i] = loadImage(scenes[i].image);
+                for (let dialogue of scenes[i].dialogues) {
+                    if (dialogue.audio) {
+                        dialogue.sound = loadSound(dialogue.audio);
+                    }
+                }
+            }
+        }
+
+        function setup() {
+            let canvas = createCanvas(800, 600);
+            canvas.parent('sketch-holder');
+            textAlign(LEFT);
+            textSize(16);
+            updateSceneCounter();
+            displayScene();
+        }
+
+        function updateSceneCounter() {
+            document.getElementById('scene-counter').textContent = `Scene ${currentScene + 1} of ${scenes.length}`;
+        }
+
+        function displayScene() {
+            let sketchHolder = document.getElementById('sketch-holder');
+            sketchHolder.classList.remove('fade-in');
+            sketchHolder.classList.add('fade-out');
+            setTimeout(() => {
+                let scene = scenes[currentScene];
+                // Draw background image
+                if (images[currentScene]) {
+                    image(images[currentScene], 0, 0, width, height);
+                } else {
+                    background(255); // Fallback if image fails
+                }
+                
+                // Draw speech bubbles
+                let yOffset = 100;
+                for (let i = 0; i < scene.dialogues.length; i++) {
+                    let dialogue = scene.dialogues[i];
+                    fill(240, 240, 240, 220); // Slightly more opaque for readability
+                    stroke(0);
+                    strokeWeight(2);
+                    rect(50, yOffset, 700, 80, 15); // Rounded corners
+                    fill(0);
+                    noStroke();
+                    textSize(14);
+                    textWrap(WORD);
+                    text(dialogue.text, 60, yOffset + 20, 680);
+                    yOffset += 100;
+                }
+                sketchHolder.classList.remove('fade-out');
+                sketchHolder.classList.add('fade-in');
+            }, 500);
+
+            // Play first dialogue audio
+            if (scene.dialogues[0] && scene.dialogues[0].sound) {
+                if (sound && sound.isPlaying()) {
+                    sound.stop();
+                }
+                sound = scene.dialogues[0].sound;
+                sound.play();
+                currentDialogue = 0;
+            }
+        }
+
+        function nextScene() {
+            if (sound && sound.isPlaying()) {
+                sound.stop();
+            }
+            currentScene++;
+            if (currentScene >= scenes.length) {
+                currentScene = 0; // Loop back to start
+            }
+            updateSceneCounter();
+            displayScene();
+        }
+
+        function prevScene() {
+            if (sound && sound.isPlaying()) {
+                sound.stop();
+            }
+            currentScene--;
+            if (currentScene < 0) {
+                currentScene = scenes.length - 1; // Loop to end
+            }
+            updateSceneCounter();
+            displayScene();
+        }
+
+        document.getElementById('next-button').addEventListener('click', nextScene);
+        document.getElementById('prev-button').addEventListener('click', prevScene);
+    </script>
+</body>
+</html>
