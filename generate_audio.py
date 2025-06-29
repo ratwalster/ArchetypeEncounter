@@ -32,91 +32,91 @@ files = [
         "filename": "audio/scene3_lila.mp3",
         "voice": "Joanna",
         "language": "en-US",
-        "ssml": '<speak>Yeah, exactly.<break time="0.3s"/> Like, the writer, the rebel, the caregiver—those kinds of roles.<break time="0.4s"/> This piece had people like Carl Jung and Maya Angelou talking about how we lean into these roles to feel safe, but they can become masks.</speak>'
+        "ssml": '<speak>Yeah, exactly.<break time="0.3s"/> Like, the writer, the rebel, the caregiver, those kinds of roles.<break time="0.4s"/> This piece had people like Carl Jung and Maya Angelou talking about how we lean into these roles to feel safe, but they can become masks.</speak>'
     },
     {
         "filename": "audio/scene4_sam.mp3",
         "voice": "Matthew",
         "language": "en-US",
-        "ssml": '<speak>I\'m a graphic designer, and sometimes I catch myself playing <emphasis level="moderate">The Creative One</emphasis> at work, you know?<break time="0.3s"/> Like, I\'ve got to be quirky and spontaneous all the time.</speak>'
+        "ssml": '<speak><prosody rate="0.95">I\'m a graphic designer, and sometimes I catch myself playing The Creative One at work, you know?<break time="0.3s"/> Like, I\'ve got to be quirky and spontaneous all the time.</prosody></speak>'
     },
     {
         "filename": "audio/scene4_lila.mp3",
         "voice": "Joanna",
         "language": "en-US",
-        "ssml": '<speak>That\'s exactly what they\'re talking about!<break time="0.4s"/> They say we do that because we\'re scared of being seen—really seen—and maybe rejected.<break time="0.3s"/> I\'m Lila, by the way.</speak>'
+        "ssml": '<speak>That\'s exactly what they\'re talking about!<break time="0.4s"/> They say we do that because we\'re scared of being seen, really seen, and maybe rejected.<break time="0.3s"/> I\'m Lila, by the way.</speak>'
     },
     {
         "filename": "audio/scene5_sam.mp3",
         "voice": "Matthew",
         "language": "en-US",
-        "ssml": '<speak>No, don\'t apologize—that\'s cool.<break time="0.3s"/> I\'m Sam.<break time="0.3s"/> So, what\'s the big idea in this thing you read?</speak>'
+        "ssml": '<speak><prosody rate="0.9">No, don\'t apologize, that\'s cool.<break time="0.3s"/> I\'m Sam.<break time="0.3s"/> So, what\'s the big idea in this thing you read?</prosody></speak>'
     },
     {
         "filename": "audio/scene5_lila.mp3",
         "voice": "Joanna",
         "language": "en-US",
-        "ssml": '<speak>Okay, so they talk about how we put people in boxes—like, you meet someone and think, <emphasis level="moderate">Oh, they\'re The Know-It-All</emphasis> or <emphasis level="moderate">The Complainer</emphasis>.<break time="0.4s"/> And then we stop listening to what they\'re actually saying.</speak>'
+        "ssml": '<speak>Okay, so they talk about how we put people in boxes, like, you meet someone and think, Oh, they\'re The Know-It-All or The Complainer.<break time="0.4s"/> And then we stop listening to what they\'re actually saying.</speak>'
     },
     {
         "filename": "audio/scene6_sam.mp3",
         "voice": "Matthew",
         "language": "en-US",
-        "ssml": '<speak>I\'ve got a coworker who\'s always got an opinion, and I just write her off as <emphasis level="moderate">The Bossy One</emphasis>.<break time="0.3s"/> But maybe I\'m not hearing what she\'s actually trying to say.</speak>'
+        "ssml": '<speak><prosody rate="0.95">I\'ve got a coworker who\'s always got an opinion, and I just write her off as The Bossy One.<break time="0.3s"/> But maybe I\'m not hearing what she\'s actually trying to say.</prosody></speak>'
     },
     {
         "filename": "audio/scene6_lila.mp3",
         "voice": "Joanna",
         "language": "en-US",
-        "ssml": '<speak>Right?<break time="0.3s"/> And it goes both ways.<break time="0.3s"/> Like, I\'m a teacher, and I catch myself playing <emphasis level="moderate">The Patient Mentor</emphasis> sometimes, especially with tough students.</speak>'
+        "ssml": '<speak>Right?<break time="0.3s"/> And it goes both ways.<break time="0.3s"/> Like, I\'m a teacher, and I catch myself playing The Patient Mentor sometimes, especially with tough students.</speak>'
     },
     {
         "filename": "audio/scene7_sam.mp3",
         "voice": "Matthew",
         "language": "en-US",
-        "ssml": '<speak>Yeah, terrifying\'s the word.<break time="0.3s"/> I mean, I\'m sitting here thinking, <emphasis level="moderate">Don\'t be The Awkward Guy</emphasis>, Sam.</speak>'
+        "ssml": '<speak><prosody rate="0.9">Yeah, terrifying\'s the word.<break time="0.3s"/> I mean, I\'m sitting here thinking, Don\'t be The Awkward Guy, Sam.</prosody></speak>'
     },
     {
         "filename": "audio/scene7_lila.mp3",
         "voice": "Joanna",
         "language": "en-US",
-        "ssml": '<speak>That\'s so real.<break time="0.4s"/> They said in the piece—Marlon Brando, of all people—he was like, <emphasis level="moderate">Some days I just want someone to see me without having to perform.</emphasis></speak>'
+        "ssml": '<speak>That\'s so real.<break time="0.4s"/> They said in the piece, Marlon Brando, of all people, he was like, Some days I just want someone to see me without having to perform.</speak>'
     },
     {
         "filename": "audio/scene8_sam.mp3",
         "voice": "Matthew",
         "language": "en-US",
-        "ssml": '<speak><prosody volume="soft">What if I just said, <emphasis level="moderate">Hey, I\'m kind of lonely sometimes?</emphasis></prosody><break time="0.4s"/> Wow, I can\'t believe I just said that to a stranger.</speak>'
+        "ssml": '<speak><prosody rate="0.85">What if I just said, Hey, I\'m kind of lonely sometimes?<break time="0.4s"/> Wow, I can\'t believe I just said that to a stranger.</prosody></speak>'
     },
     {
         "filename": "audio/scene8_lila.mp3",
         "voice": "Joanna",
         "language": "en-US",
-        "ssml": '<speak>I\'m glad you did.<break time="0.3s"/> That\'s not <emphasis level="moderate">The Funny Guy</emphasis>.<break time="0.3s"/> That\'s Sam.<break time="0.4s"/> And honestly, I feel that too.</speak>'
+        "ssml": '<speak>I\'m glad you did.<break time="0.3s"/> That\'s not The Funny Guy.<break time="0.3s"/> That\'s Sam.<break time="0.4s"/> And honestly, I feel that too.</speak>'
     },
     {
         "filename": "audio/scene9_lila.mp3",
         "voice": "Joanna",
         "language": "en-US",
-        "ssml": '<speak>They said you\'ve got to hold those archetypes lightly.<break time="0.4s"/> Like, notice when you\'re boxing someone in—or yourself—and then try to focus on the message instead.</speak>'
+        "ssml": '<speak>They said you\'ve got to hold those archetypes lightly.<break time="0.4s"/> Like, notice when you\'re boxing someone in, or yourself, and then try to focus on the message instead.</speak>'
     },
     {
         "filename": "audio/scene9_sam.mp3",
         "voice": "Matthew",
         "language": "en-US",
-        "ssml": '<speak>A river, huh?<break time="0.3s"/> That\'s kind of freeing.<break time="0.3s"/> Like, I don\'t have to be <emphasis level="moderate">The Creative Guy</emphasis> or <emphasis level="moderate">The Funny Guy</emphasis> forever.</speak>'
+        "ssml": '<speak><prosody rate="0.9">A river, huh?<break time="0.3s"/> That\'s kind of freeing.<break time="0.3s"/> Like, I don\'t have to be The Creative Guy or The Funny Guy forever.</prosody></speak>'
     },
     {
         "filename": "audio/scene10_sam.mp3",
         "voice": "Matthew",
         "language": "en-US",
-        "ssml": '<speak>Hey, um<break time="0.3s"/> would you maybe want to keep talking about this stuff?<break time="0.3s"/> Like, grab a coffee sometime?</speak>'
+        "ssml": '<speak><prosody rate="0.9">Hey, um<break time="0.3s"/> would you maybe want to keep talking about this stuff?<break time="0.3s"/> Like, grab a coffee sometime?</prosody></speak>'
     },
     {
         "filename": "audio/scene10_lila.mp3",
         "voice": "Joanna",
         "language": "en-US",
-        "ssml": '<speak>I\'d like that.<break time="0.3s"/> Let\'s do it.< Specif<break time="0.3s"/> No masks, no roles, just<break time="0.2s"/> two people figuring out what it means to be human.</speak>'
+        "ssml": '<speak>I\'d like that.<break time="0.3s"/> Let\'s do it.<break time="0.3s"/> No masks, no roles, just<break time="0.2s"/> two people figuring out what it means to be human.</speak>'
     },
 ]
 
@@ -170,6 +170,7 @@ if failed_files:
     for fail in failed_files:
         print(f"File: {fail['filename']}")
         print(f"  Error: {fail['error']}")
+        print(f"  SSML: {fail['ssml']}")
         print("-" * 30)
     print(f"\n{len(failed_files)} file(s) failed to generate. Check SSML for specific errors.")
 else:
