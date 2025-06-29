@@ -13,8 +13,7 @@
         .fade-out { opacity: 0; }
         .fade-in { opacity: 1; }
         #pdf-link { display: none; margin-top: 10px; text-align: center; }
-        #share-button { transition: background-color 0.2s; }
-        #start-button { display: none; }
+        #start-button { display: none; margin: 20px auto; }
         .buttons { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
         @media (max-width: 640px) {
             .buttons { flex-direction: column; align-items: center; }
@@ -28,10 +27,10 @@
         <div id="pdf-link" class="text-blue-600 hover:underline"></div>
         <div class="buttons mt-4">
             <button id="start-button" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Start Story</button>
-            <button id="prev-button" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 hidden">Previous</button>
-            <span id="scene-counter" class="text-lg font-semibold hidden"></span>
-            <button id="next-button" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 hidden">Next</button>
-            <button id="share-button" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 hidden">Share</button>
+            <button id="prev-button" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600">Previous</button>
+            <span id="scene-counter" class="text-lg font-semibold"></span>
+            <button id="next-button" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Next</button>
+            <button id="share-button" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Share</button>
         </div>
     </div>
 
@@ -155,56 +154,30 @@
                 document.getElementById('sketch-holder').innerHTML = "<p>Error loading storybook. Please ensure all assets are available and refresh.</p>";
             }
 
-            // Start button for start page
+            // Start button functionality
             let startButton = document.getElementById('start-button');
             startButton.addEventListener('click', () => {
-                // Resume audio context on user interaction
                 if (!audioContextStarted && getAudioContext().state === 'suspended') {
                     getAudioContext().resume().then(() => {
                         audioContextStarted = true;
                         if (backgroundMusic && !backgroundMusic.isPlaying()) {
-                            backgroundMusic.setVolume(0.1); // Lowered volume
+                            backgroundMusic.setVolume(0.1);
                             backgroundMusic.loop();
                         }
                     });
                 }
-                currentScene = 1; // Move to Scene 1
+                currentScene = 1;
                 updateSceneCounter();
                 displayScene();
-                startButton.classList.add('hidden');
-                document.getElementById('prev-button').classList.remove('hidden');
-                document.getElementById('next-button').classList.remove('hidden');
-                document.getElementById('share-button').classList.remove('hidden');
-                document.getElementById('scene-counter').classList.remove('hidden');
-            });
-
-            // Share button functionality
-            document.getElementById('share-button').addEventListener('click', () => {
-                const shareData = {
-                    title: 'Whispers on an Autumn Street',
-                    text: 'Explore a digital storybook about archetypes and human connection.',
-                    url: 'https://ratwalster.github.io/ArchetypeEncounter/'
-                };
-                if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-                    navigator.share(shareData).catch(err => {
-                        console.error('Share failed:', err);
-                    });
-                } else {
-                    navigator.clipboard.writeText(shareData.url).then(() => {
-                        alert('Link copied to clipboard!');
-                    }).catch(err => {
-                        console.error('Clipboard copy failed:', err);
-                        alert('Failed to copy link. Please copy manually: ' + shareData.url);
-                    });
-                }
             });
         }
 
         function updateSceneCounter() {
             let sceneCounter = document.getElementById('scene-counter');
             if (currentScene === 0) {
-                sceneCounter.textContent = '';
+                sceneCounter.style.display = 'none';
             } else {
+                sceneCounter.style.display = 'inline-block';
                 sceneCounter.textContent = `Scene ${currentScene} of ${scenes.length - 1}`;
             }
         }
@@ -219,7 +192,7 @@
                 sound.onended(() => {
                     currentDialogue++;
                     if (currentDialogue < scene.dialogues.length && scene.dialogues[currentDialogue].sound) {
-                        setTimeout(playNextDialogue, 500); // 0.5s delay
+                        setTimeout(playNextDialogue, 500);
                     }
                 });
                 sound.play();
@@ -230,6 +203,9 @@
             let sketchHolder = document.getElementById('sketch-holder');
             let pdfLink = document.getElementById('pdf-link');
             let startButton = document.getElementById('start-button');
+            let prevButton = document.getElementById('prev-button');
+            let nextButton = document.getElementById('next-button');
+            let shareButton = document.getElementById('share-button');
             let scene = scenes[currentScene];
             currentDialogue = 0;
 
@@ -244,13 +220,13 @@
                 }
 
                 // Draw speech bubbles
-                let yOffset = height - 100 * scene.dialogues.length; // Bottom, adjust for number of dialogues
+                let yOffset = height - 100 * scene.dialogues.length;
                 for (let i = 0; i < scene.dialogues.length; i++) {
                     let dialogue = scene.dialogues[i];
                     fill(255, 255, 255, 150);
                     stroke(200, 200, 200);
                     strokeWeight(2);
-                    rect(20, yOffset, width - 40, 90, 15); // Wider, taller bubbles
+                    rect(20, yOffset, width - 40, 90, 15);
                     fill(0);
                     noStroke();
                     textSize(13);
@@ -262,28 +238,24 @@
                 sketchHolder.classList.remove('fade-out');
                 sketchHolder.classList.add('fade-in');
 
-                // Show PDF link for Scene 2
-                if (scene.dialogues.some(d => d.pdfLink)) {
-                    pdfLink.style.display = 'block';
-                    pdfLink.innerHTML = '<a href="./theory.pdf" target="_blank" class="text-blue-600 hover:underline">Download the archetypal theory PDF</a>';
-                } else {
-                    pdfLink.style.display = 'none';
-                }
-
-                // Show/hide start button
+                // Toggle button visibility
                 if (scene.isStartPage) {
-                    startButton.classList.remove('hidden');
-                    document.getElementById('prev-button').classList.add('hidden');
-                    document.getElementById('next-button').classList.add('hidden');
-                    document.getElementById('share-button').classList.add('hidden');
-                    document.getElementById('scene-counter').classList.add('hidden');
+                    startButton.style.display = 'block';
+                    prevButton.style.display = 'none';
+                    nextButton.style.display = 'none';
+                    shareButton.style.display = 'none';
+                    pdfLink.style.display = 'none';
                 } else {
-                    startButton.classList.add('hidden');
-                    document.getElementById('prev-button').classList.remove('hidden');
-                    document.getElementById('next-button').classList.remove('hidden');
-                    document.getElementById('share-button').classList.remove('hidden');
-                    document.getElementById('scene-counter').classList.remove('hidden');
-                    // Start dialogues after audio context is resumed
+                    startButton.style.display = 'none';
+                    prevButton.style.display = 'inline-block';
+                    nextButton.style.display = 'inline-block';
+                    shareButton.style.display = 'inline-block';
+                    if (scene.dialogues.some(d => d.pdfLink)) {
+                        pdfLink.style.display = 'block';
+                        pdfLink.innerHTML = '<a href="./theory.pdf" target="_blank" class="text-blue-600 hover:underline">Download the archetypal theory PDF</a>';
+                    } else {
+                        pdfLink.style.display = 'none';
+                    }
                     if (audioContextStarted) {
                         playNextDialogue();
                     }
@@ -297,7 +269,7 @@
             }
             currentScene++;
             if (currentScene >= scenes.length) {
-                currentScene = 1; // Loop to Scene 1, skip start page
+                currentScene = 1; // Loop to Scene 1
             }
             updateSceneCounter();
             displayScene();
@@ -314,6 +286,27 @@
             updateSceneCounter();
             displayScene();
         }
+
+        // Share button functionality
+        document.getElementById('share-button').addEventListener('click', () => {
+            const shareData = {
+                title: 'Whispers on an Autumn Street',
+                text: 'Explore a digital storybook about archetypes and human connection.',
+                url: 'https://ratwalster.github.io/ArchetypeEncounter/'
+            };
+            if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                navigator.share(shareData).catch(err => {
+                    console.error('Share failed:', err);
+                });
+            } else {
+                navigator.clipboard.writeText(shareData.url).then(() => {
+                    alert('Link copied to clipboard!');
+                }).catch(err => {
+                    console.error('Clipboard copy failed:', err);
+                    alert('Failed to copy link. Please copy manually: ' + shareData.url);
+                });
+            }
+        });
 
         // Stop audio when leaving page
         window.addEventListener('unload', () => {
