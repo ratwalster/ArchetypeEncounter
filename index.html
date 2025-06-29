@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -113,12 +112,17 @@
         }
 
         function setup() {
-            let canvas = createCanvas(800, 600);
-            canvas.parent('sketch-holder');
-            textAlign(LEFT);
-            textSize(16);
-            updateSceneCounter();
-            displayScene();
+            try {
+                let canvas = createCanvas(800, 600);
+                canvas.parent('sketch-holder');
+                textAlign(LEFT);
+                textSize(16);
+                updateSceneCounter();
+                displayScene();
+            } catch (e) {
+                console.error("Setup failed:", e);
+                document.getElementById('sketch-holder').innerHTML = "<p>Error loading storybook. Please ensure all assets are available and refresh.</p>";
+            }
         }
 
         function updateSceneCounter() {
@@ -127,10 +131,10 @@
 
         function displayScene() {
             let sketchHolder = document.getElementById('sketch-holder');
+            let scene = scenes[currentScene]; // Define scene here
             sketchHolder.classList.remove('fade-in');
             sketchHolder.classList.add('fade-out');
             setTimeout(() => {
-                let scene = scenes[currentScene];
                 // Draw background image
                 if (images[currentScene]) {
                     image(images[currentScene], 0, 0, width, height);
