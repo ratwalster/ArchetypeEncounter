@@ -11,6 +11,7 @@
         .fade-out { opacity: 0; }
         .fade-in { opacity: 1; }
         #pdf-link { display: none; margin-top: 10px; text-align: center; }
+        #share-button { transition: background-color 0.2s; }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -21,6 +22,7 @@
             <button id="prev-button" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600">Previous</button>
             <span id="scene-counter" class="text-lg font-semibold"></span>
             <button id="next-button" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Next</button>
+            <button id="share-button" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Share</button>
         </div>
     </div>
 
@@ -129,6 +131,28 @@
                 console.error("Setup failed:", e);
                 document.getElementById('sketch-holder').innerHTML = "<p>Error loading storybook. Please ensure all assets are available and refresh.</p>";
             }
+
+            // Share button functionality
+            document.getElementById('share-button').addEventListener('click', () => {
+                const shareData = {
+                    title: 'A Conversation on a City Street',
+                    text: 'Explore a digital storybook about archetypes and human connection.',
+                    url: 'https://ratwalster.github.io/ArchetypeEncounter/'
+                };
+                if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                    navigator.share(shareData).catch(err => {
+                        console.error('Share failed:', err);
+                    });
+                } else {
+                    // Fallback: Copy URL to clipboard
+                    navigator.clipboard.writeText(shareData.url).then(() => {
+                        alert('Link copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Clipboard copy failed:', err);
+                        alert('Failed to copy link. Please copy manually: ' + shareData.url);
+                    });
+                }
+            });
         }
 
         function updateSceneCounter() {
@@ -167,12 +191,12 @@
                     background(255); // Fallback if image fails
                 }
                 
-                // Draw speech bubbles
-                let yOffset = 30; // Higher to avoid covering characters
+                // Draw speech bubbles at the bottom
+                let yOffset = 400; // Start at bottom (600px canvas height - 2 bubbles)
                 for (let i = 0; i < scene.dialogues.length; i++) {
                     let dialogue = scene.dialogues[i];
-                    fill(255, 255, 255, 150); // More transparent
-                    stroke(200, 200, 200); // Softer gray stroke
+                    fill(255, 255, 255, 150); // Transparent for image visibility
+                    stroke(200, 200, 200); // Soft gray stroke
                     strokeWeight(2);
                     rect(50, yOffset, 700, 80, 15); // Rounded corners
                     fill(0);
