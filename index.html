@@ -10,11 +10,13 @@
         #sketch-holder { transition: opacity 0.5s ease; }
         .fade-out { opacity: 0; }
         .fade-in { opacity: 1; }
+        #pdf-link { display: none; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="w-full max-w-4xl">
         <div id="sketch-holder" class="w-full h-[600px] fade-in"></div>
+        <div id="pdf-link" class="text-blue-600 hover:underline"></div>
         <div class="text-center mt-4 space-x-4">
             <button id="prev-button" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600">Previous</button>
             <span id="scene-counter" class="text-lg font-semibold"></span>
@@ -34,7 +36,7 @@
                 image: "images/scene2.jpg",
                 dialogues: [
                     { speaker: "Lila", text: "Honestly, I'm kind of reeling. I just read something pretty amazing about how archetypes can shape—and sometimes limit—how we connect with others. I'm trying to process what it could mean.", audio: "audio/scene2_lila.mp3" },
-                    { speaker: "", text: "Note: Lila is reading about archetypal theory, which explores how archetypes (like 'the hero' or 'the caregiver') can simplify human experience but may become barriers to authentic connection. Want to learn more? Download the theory [here](theory.pdf).", audio: null }
+                    { speaker: "", text: "Note: Lila is reading about archetypal theory, which explores how archetypes (like 'the hero' or 'the caregiver') can simplify human experience but may become barriers to authentic connection.", pdfLink: "./theory.pdf" }
                 ]
             },
             {
@@ -102,10 +104,14 @@
 
         function preload() {
             for (let i = 0; i < scenes.length; i++) {
-                images[i] = loadImage(scenes[i].image);
+                images[i] = loadImage(scenes[i].image, () => {}, (err) => {
+                    console.error(`Failed to load image: ${scenes[i].image}`, err);
+                });
                 for (let dialogue of scenes[i].dialogues) {
                     if (dialogue.audio) {
-                        dialogue.sound = loadSound(dialogue.audio);
+                        dialogue.sound = loadSound(dialogue.audio, () => {}, (err) => {
+                            console.error(`Failed to load audio: ${dialogue.audio}`, err);
+                        });
                     }
                 }
             }
@@ -129,9 +135,28 @@
             document.getElementById('scene-counter').textContent = `Scene ${currentScene + 1} of ${scenes.length}`;
         }
 
+        function playNextDialogue() {
+            let scene = scenes[currentScene];
+            if (currentDialogue < scene.dialogues.length && scene.dialogues[currentDialogue].sound) {
+                if (sound && sound.isPlaying()) {
+                    sound.stop();
+                }
+                sound = scene.dialogues[currentDialogue].sound;
+                sound.onended(() => {
+                    currentDialogue++;
+                    if (currentDialogue < scene.dialogues.length && scene.dialogues[currentDialogue].sound) {
+                        setTimeout(playNextDialogue, 500); // 0.5s delay between audios
+                    }
+                });
+                sound.play();
+            }
+        }
+
         function displayScene() {
             let sketchHolder = document.getElementById('sketch-holder');
-            let scene = scenes[currentScene]; // Define scene here
+            let pdfLink = document.getElementById('pdf-link');
+            let scene = scenes[currentScene];
+            currentDialogue = 0; // Reset dialogue index
             sketchHolder.classList.remove('fade-in');
             sketchHolder.classList.add('fade-out');
             setTimeout(() => {
@@ -143,11 +168,11 @@
                 }
                 
                 // Draw speech bubbles
-                let yOffset = 100;
+                let yOffset = 30; // Higher to avoid covering characters
                 for (let i = 0; i < scene.dialogues.length; i++) {
                     let dialogue = scene.dialogues[i];
-                    fill(240, 240, 240, 220); // Slightly more opaque for readability
-                    stroke(0);
+                    fill(255, 255, 255, 150); // More transparent
+                    stroke(200, 200, 200); // Softer gray stroke
                     strokeWeight(2);
                     rect(50, yOffset, 700, 80, 15); // Rounded corners
                     fill(0);
@@ -159,17 +184,18 @@
                 }
                 sketchHolder.classList.remove('fade-out');
                 sketchHolder.classList.add('fade-in');
+
+                // Show PDF link for Scene 2
+                if (scene.dialogues.some(d => d.pdfLink)) {
+                    pdfLink.style.display = 'block';
+                    pdfLink.innerHTML = '<a href="./theory.pdf" target="_blank" class="text-blue-600 hover:underline">Download the archetypal theory PDF</a>';
+                } else {
+                    pdfLink.style.display = 'none';
+                }
             }, 500);
 
-            // Play first dialogue audio
-            if (scene.dialogues[0] && scene.dialogues[0].sound) {
-                if (sound && sound.isPlaying()) {
-                    sound.stop();
-                }
-                sound = scene.dialogues[0].sound;
-                sound.play();
-                currentDialogue = 0;
-            }
+            // Start playing dialogues
+            playNextDialogue();
         }
 
         function nextScene() {
